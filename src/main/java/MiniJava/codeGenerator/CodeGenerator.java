@@ -1,11 +1,9 @@
 package MiniJava.codeGenerator;
 
-import MiniJava.Log.Log;
 import MiniJava.codeGenerator.semanticActions.*;
 import MiniJava.errorHandler.ErrorHandler;
 import MiniJava.scanner.token.Token;
 import MiniJava.semantic.symbol.Symbol;
-import MiniJava.semantic.symbol.SymbolTable;
 import MiniJava.semantic.symbol.SymbolTableFacade;
 import MiniJava.semantic.symbol.SymbolType;
 
@@ -23,31 +21,44 @@ public class CodeGenerator {
     private Stack<String> callStack = new Stack<>();
     private SymbolTableFacade symbolTableFacade;
     private Map<Integer, SemanticAction> semanticActionsMap;
+    private int currentAddress;
+
 
     public CodeGenerator() {
         symbolTableFacade = new SymbolTableFacade(memory);
         initializeSemanticActions();
     }
+
+    // Query Method: Checks if the function code exists in the map of actions
+    public boolean isActionDefined(int func) {
+        return semanticActionsMap.containsKey(func);
+    }
+
+    // Query Method: Retrieves the action corresponding to the function code
+    public SemanticAction getSemanticAction(int func) {
+        return semanticActionsMap.get(func);
+    }
+
     private void initializeSemanticActions() {
         semanticActionsMap = new HashMap<>();
         semanticActionsMap.put(10, new AddAction());
         semanticActionsMap.put(11, new SubAction());
         semanticActionsMap.put(9, new AssignAction());
         semanticActionsMap.put(18, new PrintAction());
-        // Add other semantic actions here...
     }
 
-    public void printMemory() {
-        memory.pintCodeBlock();
-    }
-
-    public void semanticFunction(int func, Token next) {
-        SemanticAction action = semanticActionsMap.get(func);
-        if (action != null) {
+    // Modifier Method: Executes the corresponding action for the function code
+    public void performSemanticAction(int func, Token next) {
+        if (isActionDefined(func)) {
+            SemanticAction action = getSemanticAction(func);
             action.execute(this, next);
         } else {
             throw new IllegalArgumentException("Undefined semantic action: " + func);
         }
+    }
+
+    public void printMemory() {
+        memory.pintCodeBlock();
     }
 
     private void defMain() {
