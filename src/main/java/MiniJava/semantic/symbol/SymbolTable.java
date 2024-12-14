@@ -155,7 +155,7 @@ public class SymbolTable {
             if (Methodes.containsKey(methodName)) {
                 ErrorHandler.printError("This method already defined");
             }
-
+          
             Method newMethod = createNewMethod(address);
             Methodes.put(methodName, newMethod);
         }
