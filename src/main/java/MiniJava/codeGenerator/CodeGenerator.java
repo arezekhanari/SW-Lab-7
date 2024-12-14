@@ -1,6 +1,11 @@
 package MiniJava.codeGenerator;
 
 import MiniJava.codeGenerator.semanticActions.*;
+import MiniJava.codeGenerator.semanticActions.AddAction;
+import MiniJava.codeGenerator.semanticActions.AssignAction;
+import MiniJava.codeGenerator.semanticActions.PrintAction;
+import MiniJava.codeGenerator.semanticActions.SemanticAction;
+import MiniJava.codeGenerator.semanticActions.SubAction;
 import MiniJava.errorHandler.ErrorHandler;
 import MiniJava.scanner.token.Token;
 import MiniJava.semantic.symbol.Symbol;
@@ -91,7 +96,7 @@ public class CodeGenerator {
 
                 Symbol s = symbolTableFacade.getVariable(className, methodName, next.value);
                 varType t = varType.Int;
-                switch (s.type) {
+                switch (s.getType()) {
                     case Bool:
                         t = varType.Bool;
                         break;
@@ -99,7 +104,7 @@ public class CodeGenerator {
                         t = varType.Int;
                         break;
                 }
-                ss.push(new Address(s.address, t));
+                ss.push(new Address(s.getAddress(), t));
 
 
             } catch (Exception e) {
@@ -119,7 +124,7 @@ public class CodeGenerator {
 
         Symbol s = symbolTableFacade.getField(symbolStack.pop(), symbolStack.pop());
         varType t = varType.Int;
-        switch (s.type) {
+        switch (s.getType()) {
             case Bool:
                 t = varType.Bool;
                 break;
@@ -127,7 +132,7 @@ public class CodeGenerator {
                 t = varType.Int;
                 break;
         }
-        ss.push(new Address(s.address, t));
+        ss.push(new Address(s.getAddress(), t));
 
     }
 
@@ -187,7 +192,7 @@ public class CodeGenerator {
         try {
             Symbol s = symbolTableFacade.getNextParameter(callStack.peek(), methodName);
             varType t = varType.Int;
-            switch (s.type) {
+            switch (s.getType()) {
                 case Bool:
                     t = varType.Bool;
                     break;
@@ -199,7 +204,7 @@ public class CodeGenerator {
             if (param.varType != t) {
                 ErrorHandler.printError("The argument type isn't match");
             }
-            memory.add3AddressCode(Operation.ASSIGN, param, new Address(s.address, t), null);
+            memory.add3AddressCode(Operation.ASSIGN, param, new Address(s.getAddress(), t), null);
 
 //        symbolStack.push(className);
 
