@@ -33,13 +33,15 @@ public class SymbolTableFacade {
     }
 
     // Adds a parameter to a method
-    public void defineMethodParameter(String className, String methodName, String parameterName, SymbolType parameterType) {
+    public void defineMethodParameter(String className, String methodName, String parameterName,
+            SymbolType parameterType) {
         symbolTable.setLastType(parameterType);
         symbolTable.addMethodParameter(className, methodName, parameterName);
     }
 
     // Adds a local variable to a method
-    public void defineMethodLocalVariable(String className, String methodName, String variableName, SymbolType variableType) {
+    public void defineMethodLocalVariable(String className, String methodName, String variableName,
+            SymbolType variableType) {
         symbolTable.setLastType(variableType);
         symbolTable.addMethodLocalVariable(className, methodName, variableName);
     }
