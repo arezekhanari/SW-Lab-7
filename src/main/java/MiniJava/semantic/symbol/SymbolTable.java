@@ -37,7 +37,11 @@ public class SymbolTable {
     }
 
     public void addField(String fieldName, String className) {
-        klasses.get(className).Fields.put(fieldName, new Symbol(lastType, mem.getDateAddress()));
+        klasses.get(className).Fields.put(fieldName, createSymbolForField());
+    }
+
+    private Symbol createSymbolForField() {
+        return new Symbol(lastType, mem.getDateAddress());
     }
 
     public void addMethod(String className, String methodName, int address) {
@@ -81,9 +85,9 @@ public class SymbolTable {
     }
 
     public Symbol get(String className, String methodName, String variable) {
-        Symbol res = klasses.get(className).Methodes.get(methodName).getVariable(variable);
-        if (res == null) res = get(variable, className);
-        return res;
+        Symbol firstRes = klasses.get(className).Methodes.get(methodName).getVariable(variable);
+        Symbol secondRes = firstRes == null ? get(variable, className) : firstRes;
+        return secondRes;
     }
 
     public Symbol getNextParam(String className, String methodName) {
@@ -151,7 +155,12 @@ public class SymbolTable {
             if (Methodes.containsKey(methodName)) {
                 ErrorHandler.printError("This method already defined");
             }
-            Methodes.put(methodName, new Method(address, returnType));
+          
+            Method newMethod = createNewMethod(address);
+            Methodes.put(methodName, newMethod);
+        }
+        private Method createNewMethod(int address) {
+            return new Method(address, lastType);
         }
 
     }
