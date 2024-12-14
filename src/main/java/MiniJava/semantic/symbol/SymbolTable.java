@@ -5,6 +5,7 @@ import MiniJava.codeGenerator.Memory;
 import MiniJava.codeGenerator.TypeAddress;
 import MiniJava.codeGenerator.varType;
 import MiniJava.errorHandler.ErrorHandler;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,18 +37,19 @@ public class SymbolTable {
     }
 
     public void addField(String fieldName, String className) {
-        klasses.get(className).Fields.put(fieldName, new Symbol(lastType, mem.getDateAddress()));
+        klasses.get(className).Fields.put(fieldName, createSymbolForField());
+    }
+
+    private Symbol createSymbolForField() {
+        return new Symbol(lastType, mem.getDateAddress());
     }
 
     public void addMethod(String className, String methodName, int address) {
-        if (klasses.get(className).Methodes.containsKey(methodName)) {
-            ErrorHandler.printError("This method already defined");
-        }
-        klasses.get(className).Methodes.put(methodName, new Method(address, lastType));
+        klasses.get(className).addMethod(methodName, address, lastType);
     }
 
     public void addMethodParameter(String className, String methodName, String parameterName) {
-        klasses.get(className).Methodes.get(methodName).addParameter(parameterName);
+        klasses.get(className).addMethodParameter(methodName, parameterName);
     }
 
     public void addMethodLocalVariable(String className, String methodName, String localVariableName) {
@@ -62,7 +64,10 @@ public class SymbolTable {
     }
 
     public void setSuperClass(String superClass, String className) {
-        klasses.get(className).superClass = klasses.get(superClass);
+        Klass superclass = klasses.get(superClass);
+        if (superclass != null) {
+            klasses.get(className).setSuperClass(superclass);
+        }
     }
 
     public Address get(String keywordName) {
@@ -80,9 +85,9 @@ public class SymbolTable {
     }
 
     public Symbol get(String className, String methodName, String variable) {
-        Symbol res = klasses.get(className).Methodes.get(methodName).getVariable(variable);
-        if (res == null) res = get(variable, className);
-        return res;
+        Symbol firstRes = klasses.get(className).Methodes.get(methodName).getVariable(variable);
+        Symbol secondRes = firstRes == null ? get(variable, className) : firstRes;
+        return secondRes;
     }
 
     public Symbol getNextParam(String className, String methodName) {
@@ -124,6 +129,7 @@ public class SymbolTable {
     class Klass {
         public Map<String, Symbol> Fields;
         public Map<String, Method> Methodes;
+        @Setter
         public Klass superClass;
 
         public Klass() {
@@ -136,7 +142,25 @@ public class SymbolTable {
                 return Fields.get(fieldName);
             }
             return superClass.getField(fieldName);
+        }
 
+        public void addMethodParameter(String methodName, String parameterName) {
+            Method method = Methodes.get(methodName);
+            if (method != null) {
+                method.addParameter(parameterName);
+            }
+        }
+
+        public void addMethod(String methodName, int address, SymbolType returnType) {
+            if (Methodes.containsKey(methodName)) {
+                ErrorHandler.printError("This method already defined");
+            }
+
+            Method newMethod = createNewMethod(address);
+            Methodes.put(methodName, newMethod);
+        }
+        private Method createNewMethod(int address) {
+            return new Method(address, lastType);
         }
 
     }
